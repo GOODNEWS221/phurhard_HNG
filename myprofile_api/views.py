@@ -1,27 +1,31 @@
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 import requests
 from datetime import datetime, timezone
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 
-@api_view(['GET'])
-def me(request):
-    try:
-        response = requests.get('https://catfact.ninja/fact', timeout=5)
-        cat_fact = response.json().get('fact', 'Cat fact not available.')
-    except Exception:
-        cat_fact = "Fact about cats currently not available."
+class ProfileView(APIView):
+    def get(self, request):
+        try:
+            # Fetch random cat fact
+            response = requests.get("https://catfact.ninja/fact", timeout=5)
+            response.raise_for_status()
+            cat_fact = response.json().get("fact", "Cats are cute beings!")
+        except requests.RequestException:
+            cat_fact = "Cat fact currently not available."
 
-    data = {
-        "status": "success",
-        "user": {
-            "email": "your_email@example.com",
-            "name": "Goodnews Atekha",
-            "stack": "Python/Django REST Framework"
-        },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "fact": cat_fact
-    }
+        # Create response data
+        data = {
+            "status": "success",
+            "user": {
+                "email": "goodnewsatekha@gmail.com", 
+                "name": "Goodnews Atekha",        
+                "stack": "Python/Django REST Framework"
+            },
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "fact": cat_fact
+        }
 
-    return Response(data)
+        return Response(data, status=status.HTTP_200_OK)
 
 
