@@ -3,6 +3,9 @@ from datetime import datetime, timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from django_ratelimit.decorators import ratelimit
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 class ProfileView(APIView):
     def get(self, request):
@@ -27,5 +30,13 @@ class ProfileView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+    
+
+
+@api_view(['GET'])
+@ratelimit(key='ip', rate='5/m', block=True)
+def my_view(request):
+    """Simple rate-limited endpoint"""
+    return Response({"message": "Hello!"})
 
 
