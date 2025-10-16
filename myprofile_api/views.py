@@ -14,10 +14,25 @@ class ProfileView(APIView):
             response = requests.get("https://catfact.ninja/fact", timeout=5)
             response.raise_for_status()
             cat_fact = response.json().get("fact", "Cats are cute beings!")
-        except requests.RequestException:
-            cat_fact = "Cat fact currently not available."
+            http_status = status.HTTP_200_OK
 
-        # Create response data
+        except requests.Timeout:
+            
+            cat_fact = "Cat fact service timed out. Try again later."
+            http_status = status.HTTP_504_GATEWAY_TIMEOUT
+
+        except requests.ConnectionError:
+            
+            cat_fact = "Unable to connect to Cat Facts API, Please Retry."
+            http_status = status.HTTP_503_SERVICE_UNAVAILABLE
+
+        except requests.RequestException as e:
+            # Catch all other request errors (4xx, 5xx)
+            cat_fact = f"Cat fact could not be fetched due to an error: {str(e)}"
+            http_status = status.HTTP_502_BAD_GATEWAY
+        
+
+        # my response data(Json)
         data = {
             "status": "success",
             "user": {
