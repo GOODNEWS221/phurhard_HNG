@@ -16,8 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from myprofile_api.views import ProfileView
 
 urlpatterns = [
+    path('', lambda request: redirect('/api/')),
     path('admin/', admin.site.urls),
     path('api/', include('myprofile_api.urls')),
+    path('me/', ProfileView.as_view(), name='profile'),
 ]
+
